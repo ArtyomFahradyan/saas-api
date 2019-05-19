@@ -7,6 +7,8 @@ import Token from './token';
 import Team from './team';
 import Platform from './platform';
 import Notification from './notification';
+import TeamMember from './teamMember';
+import Transaction from './transaction';
 
 export default function initModels(mongoose) {
     User(mongoose);
@@ -18,4 +20,6 @@ export default function initModels(mongoose) {
     Team(mongoose);
     Platform(mongoose);
     Notification(mongoose);
+    TeamMember(mongoose);
+    Transaction(mongoose);
 }

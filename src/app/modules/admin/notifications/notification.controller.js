@@ -46,7 +46,7 @@ export class NotificationController {
             const attributes = { seen: true };
             let updatedNotification = await NotificationService.update(notification._id, attributes);
 
-            io.emit('NEW_NOTIFICATION', {
+            io.emit('SET_AS_SEEN', {
                 message: 'Marked as seen'
             });
 

@@ -8,3 +8,6 @@ export { FilesystemService } from './filesystem.service';
 export { TeamService } from './teams.service';
 export { PlatformService } from './platform.service';
 export { NotificationService } from './notification.service';
+export { TeamMemberService } from './teamMember.service';
+export { TransactionService } from './transaction.service';
+export { CronService } from './cron.service';

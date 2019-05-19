@@ -15,3 +15,8 @@ export const adminTokenSecret = env.get('ADMIN_TOKEN_SECRET').asString();
 
 export const sendGridApiKey = env.get('SENDGRID_API_KEY').asString();
 export const emailFrom = env.get('EMAIL_FROM').asString();
+export const emailVerificationTemplateId = env.get('EMAIL_VERIFICATION_TEMPLATE_ID').asString();
+
+export const awsAccessKeyId = env.get('AWS_ACCESS_KEY_ID').asString();
+export const awsSecretAccessKey = env.get('AWS_SECRET_ACCESS_KEY').asString();
+export const s3Bucket = env.get('S3_BUCKET').asString();

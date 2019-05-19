@@ -41,12 +41,21 @@ export class TeamService {
     }
 
     static async getByAccountId(account) {
-        return await Team.findOne({ account });
+        return await Team.find({
+            $or: [
+                { account },
+                { accounts: { $in: [account] } }
+            ]
+        });
     }
 
     static async update(_id, attributes) {
         const options = { new: true };
 
         return Team.findOneAndUpdate({ _id }, attributes, options);
+    }
+
+    static async delete(_id) {
+        return await Team.findOneAndDelete({ _id });
     }
 }

@@ -4,7 +4,7 @@ export default (mongoose) => {
     let UserSchema = mongoose.Schema({
         firstName: { type: String, required: true },
         lastName: { type: String, required: true },
-        email: { type: String, required: true, index: true },
+        email: { type: String, required: true, index: true, unique: true },
         account: { type: mongoose.Schema.Types.ObjectId, ref: 'Account' },
         password: { type: String },
         emailVerified: { type: Boolean, default: false },

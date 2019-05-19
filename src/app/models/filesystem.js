@@ -1,7 +1,11 @@
 export default (mongoose) => {
     let FilesystemSchema = mongoose.Schema({
-        fileName: { type: String, required: true, unique: true },
-        user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+        fileName: { type: String, required: true },
+        alias: { type: String },
+        location: { type: String, required: true },
+        account: { type: mongoose.Schema.Types.ObjectId, ref: 'Account', required: true, index: true },
+        contract: { type: mongoose.Schema.Types.ObjectId, ref: 'Contract' },
+        isDownloaded: { type: Boolean, default: false },
         createdAt: Date,
         updatedAt: Date
     });

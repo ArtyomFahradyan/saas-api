@@ -10,23 +10,83 @@ import {
     INVITATION_MESSAGE,
     INVITATION_SUBJECT
 } from '../configs/constants';
+import Utils from '../helpers/utils';
 
 export class UserService {
 
     constructor() { }
 
+    static sort(query, options) {
+        switch (options.sort) {
+                case 'fName':
+                    if (options.dir === 'asc') {
+                        query.push({ $sort: { 'firstName': 1 } });
+                    } else if (options.dir === 'desc') {
+                        query.push({ $sort: { 'firstName': -1 } });
+                    }
+                    break;
+                case 'lName':
+                    if (options.dir === 'asc') {
+                        query.push({ $sort: { 'lastName': 1 } });
+                    } else if (options.dir === 'desc') {
+                        query.push({ $sort: { 'lastName': -1 } });
+                    }
+                    break;
+                case 'email':
+                    if (options.dir === 'asc') {
+                        query.push({ $sort: { 'email': 1 } });
+                    } else if (options.dir === 'desc') {
+                        query.push({ $sort: { 'email': -1 } });
+                    }
+                    break;
+        }
+    }
+
+    static search(query, options) {
+        options.q = Utils.escapeRegexSpecialCharacters(options.q);
+        query.push({
+            $match: { $or: [{ 'firstName': new RegExp(options.q, 'i') },
+                { $or: [{ 'lastName': new RegExp(options.q, 'i') },
+                    { 'email': new RegExp(options.q, 'i') }] }] }
+        });
+    }
+
     static async getById(_id) {
-        return await User.findOne({ _id })
-                .select('email firstName lastName createdAt emailVerified');
+        return await User.findOne({ _id }, { password: 0 });
     }
 
     static async getByEmail(email) {
         return await User.findOne({ email });
     }
 
-    static async getAccountUsers(user) {
-        return await User.find({ createdBy: user._id, emailVerified: true, isAccountOwner: false })
-                .select('email firstName lastName createdAt emailVerified');
+    static async getAccountUsers( userId, options) {
+        const size = Number(options.size) || 5;
+        const offset = Number(options.offset) || 0;
+        let query = [];
+
+        query.push(
+            { $match: { $and: [{ createdBy: userId }, { isAccountOwner: false }] } }
+        );
+
+        if (options.q) {
+            this.search(query, options);
+        }
+
+        if (options.sort && options.dir) {
+            this.sort(query, options);
+        }
+
+        query.push(
+            { $group: { _id: null, admins: { $push: '$$ROOT' },count: { $sum: 1 } } },
+            { $project: { admins: { $slice: [ '$admins', offset * size, size ] },
+                count: 1, _id: 0 } }
+        );
+
+        const result = await User.aggregate(query);
+
+        console.log(result);
+
+        return result[0] ? result[0] : { count: 0, admins: [] } ;
     }
 
     static async getAll(options) {
@@ -106,14 +166,17 @@ export class UserService {
     }
 
     static async sendVerificationMail(user, token) {
-
         return await MailService.sendMail(
             params.emailFrom,
             user.email,
             VERIFICATION_MESSAGE(`${params.appUrl}/verify-email/confirm?verifyToken=${token}`),
             VERIFICATION_EMAIL_SUBJECT,
             {
-                html: true
+                html: true,
+                template: params.emailVerificationTemplateId,
+                dynamic_template_data: {
+                    url: `${params.appUrl}/verify-email/confirm?verifyToken=${token}`
+                }
             }
         );
     }

@@ -5,8 +5,11 @@ import {
     userTokenSecret,
     adminTokenSecret,
     sendGridApiKey,
-    emailFrom
-
+    emailFrom,
+    emailVerificationTemplateId,
+    awsAccessKeyId,
+    awsSecretAccessKey,
+    s3Bucket
 } from '../helpers/config';
 
 const params = {
@@ -17,7 +20,11 @@ const params = {
         userTokenSecret,
         adminTokenSecret,
         sendGridApiKey,
-        emailFrom
+        emailFrom,
+        emailVerificationTemplateId,
+        awsAccessKeyId,
+        awsSecretAccessKey,
+        s3Bucket
     },
     production: {
         apiUrl,
@@ -26,7 +33,11 @@ const params = {
         userTokenSecret,
         adminTokenSecret,
         sendGridApiKey,
-        emailFrom
+        emailFrom,
+        emailVerificationTemplateId,
+        awsAccessKeyId,
+        awsSecretAccessKey,
+        s3Bucket
     }
 };
 

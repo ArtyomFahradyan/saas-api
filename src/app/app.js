@@ -14,11 +14,15 @@ import { ServiceUnavailable } from './errors';
 import configPassport from './strategies/passport-jwt';
 import configAdminPassport from './strategies/passportAdmin-jwt';
 import { isValidDate } from './validators';
-
-const sgMail = require('@sendgrid/mail');
-
+import oneMonthBefore from './cron/oneMonthBefore';
+import twoMonthsBefore from './cron/twoMonthsBefore';
+import threeMonthsBefore from './cron/threeMonthsBefore';
 import passport from 'passport';
 import params from './configs/params';
+import AWS from 'aws-sdk';
+import bluebird from 'bluebird';
+
+const sgMail = require('@sendgrid/mail');
 
 class Application {
     app;
@@ -36,6 +40,8 @@ class Application {
         this.setRouter();
         this.setErrorHandler();
         this.enableModules();
+        this.awsConfig();
+        this.enableCronJobs();
     }
 
     configApp() {
@@ -100,6 +106,21 @@ class Application {
 
     enableModules() {
         enableModules(this.router);
+    }
+
+    awsConfig() {
+        AWS.config.update({
+            accessKeyId: params.awsAccessKeyId,
+            secretAccessKey: params.awsSecretAccessKey
+        });
+
+        AWS.config.setPromisesDependency(bluebird);
+    }
+
+    enableCronJobs() {
+        oneMonthBefore.start();
+        twoMonthsBefore.start();
+        threeMonthsBefore.start();
     }
 
 }

@@ -27,6 +27,7 @@
         "space-infix-ops": "error",
         "space-before-blocks": "error",
         "newline-before-return": "error",
+        "no-console": "off",
         "linebreak-style": [
             "error",
             "unix"

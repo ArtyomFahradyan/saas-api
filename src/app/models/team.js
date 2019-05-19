@@ -1,6 +1,7 @@
 export default (mongoose) => {
     let TeamSchema = mongoose.Schema({
         account: { type: mongoose.Schema.Types.ObjectId, ref: 'Account', index: true },
+        accounts: [mongoose.Schema.Types.ObjectId],
         name: { type: String, required: true },
         isCustom: { type: Boolean, default: true }
     });

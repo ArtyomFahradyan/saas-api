@@ -9,7 +9,7 @@ const corsOptions = {
         ]
     },
     production: {
-        origin: [ /saastracked.herokuapp.com/, /saastracked-admin.herokuapp.com/ ],
+        origin: [ /saastracked.herokuapp.com/, /saastracked-admin.herokuapp.com/, /app.saastracked.com/ ],
         credentials: true,
         allowedHeaders: [
             'Content-Type',

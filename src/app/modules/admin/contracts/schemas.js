@@ -31,6 +31,19 @@ export default {
                     errorMessage: REQUIRED('Price')
                 }
             },
+            paymentFrequency: {
+                notEmpty: {
+                    errorMessage: REQUIRED('Payment Frequency')
+                }
+            },
+            paymentTerms: {
+                notEmpty: {
+                    errorMessage: REQUIRED('Payment Frequency')
+                },
+                isNumeric: {
+                    errorMessage: INVALID('Payment Terms')
+                }
+            }
         },
         authentication: true,
         authenticationType: ADMIN_AUTH

@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 const Filesystem = mongoose.model('Filesystem');
-import { BadRequest, NotFound } from '../errors';
-import { ALREADY_EXISTS, NOT_EXISTS } from '../configs/constants';
+import { NotFound } from '../errors';
+import { NOT_EXISTS } from '../configs/constants';
 
 export class FilesystemService {
     constructor() { }
@@ -18,25 +18,42 @@ export class FilesystemService {
 
     static async getAll() {
         return await Filesystem.aggregate([
-            { $lookup: { from: 'users', localField: 'user', foreignField: '_id', as: 'user' } },
-            { $unwind: '$user' },
-            { $project: { 'user.password': 0 } }
+            { $lookup: { from: 'accounts', localField: 'account', foreignField: '_id', as: 'account' } },
+            { $unwind: '$account' }
         ]);
     }
 
-    static async create(fileName, user) {
-        let data = {
-            user: user._id,
-            fileName
-        };
+    static async getByAccountAndContract(contract, account) {
+        return await Filesystem.findOne({ contract, account });
+    }
+
+    static async getByFileName(fileName, account) {
+        return await Filesystem.findOne({ fileName, account });
+    }
+
+    static async getByAccount(account) {
+        return await Filesystem.find({ account });
+    }
+
+    static async create(data) {
         return await Filesystem.create(data);
     }
 
-    static async checkUnique(name) {
-        let file = await Filesystem.findOne({ fileName: name });
+    static async getByContract(contract) {
+        return await Filesystem.find({ contract });
+    }
 
-        if (file) {
-            throw new BadRequest(ALREADY_EXISTS(`File with ${name} name`));
-        }
+    static async update(_id, attributes) {
+        const options = { new: true };
+
+        return await Filesystem.findOneAndUpdate({ _id }, attributes, options);
+    }
+
+    static async isValidFileName(fileName) {
+        let rg1 = /^[^\\/:\*\?"<>\|]+$/;
+        let rg2 = /^\./;
+        let rg3 = /^(nul|prn|con|lpt[0-9]|com[0-9])(\.|$)/i;
+
+        return rg1.test(fileName) && !rg2.test(fileName) && !rg3.test(fileName);
     }
 }

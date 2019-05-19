@@ -21,7 +21,7 @@ export default class Utils {
         }
     }
 
-    static createToken(expirationHours = 1, size = 16) {
+    static createToken(expirationHours = 24, size = 16) {
         return {
             token: crypto.randomBytes(size).toString('hex'),
             exp: moment().add(expirationHours, 'hours')
@@ -41,6 +41,14 @@ export default class Utils {
                 default:
                     return {};
         }
+    }
+
+    static escapeRegexSpecialCharacters(string) {
+        return string.replace(/[<>*()?]/g, '\\$&');
+    }
+
+    static generateFileName() {
+        return `${moment().format('DD-MM-YYYY-HH:mm:ss')}.pdf`;
     }
 
     static isMasterAdmin(admin) {

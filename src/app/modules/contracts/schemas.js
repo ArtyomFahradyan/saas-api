@@ -8,5 +8,13 @@ export default {
     getOne: {
         authentication: true,
         authenticationType: USER_AUTH
+    },
+    setReminder: {
+        authentication: true,
+        authenticationType: USER_AUTH
+    },
+    delete: {
+        authentication: true,
+        authenticationType: USER_AUTH
     }
 };

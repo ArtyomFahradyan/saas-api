@@ -9,4 +9,7 @@ export default (router) => {
     router.put('/add-user/:token', ...middlewares(schemas, 'addUser'), UserController.addUser);
     router.delete('/:id', ...middlewares(schemas, 'deleteUser'), UserController.deleteUser);
     router.get('/', ...middlewares(schemas, 'getUsers'), UserController.getUsers);
+    router.get('/:id/resend-mail', ...middlewares(schemas, 'getUsers'), UserController.resendMail);
+    router.put('/:subUserId', ...middlewares(schemas, 'editUser'), UserController.editUser);
+
 };

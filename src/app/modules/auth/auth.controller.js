@@ -1,10 +1,12 @@
 import { AccountService, TeamService, TokenService, UserService } from '../../services/index';
 import { SUCCESS_CODE } from '../../configs/status-codes';
-import { AuthError, BadRequest } from '../../errors/index';
-import { ALREADY_EXISTS,
+import { AuthError, BadRequest, NotFound } from '../../errors/index';
+import {
+    ALREADY_EXISTS, INVALID,
     INVALID_EMAIL_OR_PASSWORD,
     TOKEN_EXPIRED,
-    VERIFICATION_ERROR } from '../../configs/constants';
+    VERIFICATION_ERROR
+} from '../../configs/constants';
 import Utils from '../../helpers/utils';
 import moment from 'moment';
 
@@ -13,17 +15,27 @@ export class AuthController {
     static async signup(req, res, next) {
         const payload = req.body;
         try {
+            if (payload.password !== payload.confirmPassword) {
+                throw new BadRequest(INVALID('Password'));
+            }
+
             let user = await UserService.getByEmail(payload.email);
 
             if (user) {
                 throw new BadRequest(ALREADY_EXISTS('Email'));
             }
 
+            let account = await AccountService.getByCompany(payload.company);
+
+            if (account) {
+                throw new BadRequest(ALREADY_EXISTS('Account'));
+            }
+
             user = await UserService.create(payload);
 
             const team = await TeamService.getById(payload.team);
 
-            let account = await AccountService.create({
+            account = await AccountService.create({
                 owner: user._id,
                 company: payload.company,
                 team: team._id
@@ -63,12 +75,28 @@ export class AuthController {
 
     static async verify({ body }, res, next) {
         try {
-            const info = await TokenService.deleteByToken(body.token);
+            const oldToken = await TokenService.deleteByToken(body.token);
 
-            if (!info || info.expirationDate < moment().valueOf()) {
-                return next(new BadRequest(TOKEN_EXPIRED));
+            if (!oldToken ) {
+                return next(new BadRequest(INVALID('Token')));
+            } else if (oldToken.expirationDate < moment().valueOf()) {
+                const user = await UserService.getById(oldToken.user);
+                if(!user) {
+                    throw new NotFound('User');
+                }
+                const newToken = await Utils.createToken();
+
+                await TokenService.create({
+                    token: newToken.token,
+                    expirationDate: newToken.exp,
+                    user: oldToken.user
+                });
+
+                await UserService.sendVerificationMail(user, newToken.token);
+
+                return next(new BadRequest('Token is outdated. Please check your Email'));
             } else {
-                await UserService.update(info.user, {
+                await UserService.update(oldToken.user, {
                     emailVerified: true
                 });
             }

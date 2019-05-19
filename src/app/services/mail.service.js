@@ -18,8 +18,8 @@ export class MailService {
                     email: from,
                 },
                 subject,
-                // templateId: options.template && options.template,
-                // dynamic_template_data: options.dynamic_template_data && options.dynamic_template_data
+                template_id: options.template && options.template,
+                dynamic_template_data: options.dynamic_template_data && options.dynamic_template_data
             };
 
             /* if (params.additionalEmails) {
@@ -41,5 +41,9 @@ export class MailService {
             console.log(e);
             throw new ExternalApiError(e);
         }
+    }
+
+    static async sendContractMail(from, to, message, subject) {
+
     }
 }

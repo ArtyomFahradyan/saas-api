@@ -1,7 +1,7 @@
 export default (mongoose) => {
     let NotificationSchema = mongoose.Schema({
         account: { type: mongoose.Schema.Types.ObjectId, ref: 'Account', required: true, index: true },
-        contract: { type: mongoose.Schema.Types.ObjectId, ref: 'Contract', required: true, index: true },
+        contract: { type: mongoose.Schema.Types.ObjectId, ref: 'Contract' },
         notes: { type: String, required: true },
         seen: { type: Boolean, default: false },
         createdAt: Date,

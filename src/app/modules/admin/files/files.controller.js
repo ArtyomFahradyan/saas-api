@@ -1,5 +1,8 @@
-import { FilesystemService } from '../../../services';
+import validfilename from 'valid-filename';
+import { AccountService, FilesystemService } from '../../../services';
 import { SUCCESS_CODE } from '../../../configs/status-codes';
+import { NotFound, ValidationError } from '../../../errors';
+import { NOT_EXISTS, INVALID } from '../../../configs/constants';
 
 const fs = require('fs');
 
@@ -14,27 +17,47 @@ export class FilesController {
         }
     }
 
-    static async download(req, res, next) {
+    static async getFilesByAccount(req, res, next) {
         const { id } = req.params;
         try {
-            let fileData = await FilesystemService.getById(id);
+            let account = await AccountService.getById(id);
 
-            let path = `uploads/${fileData.user}/${fileData.fileName}`;
+            if (!account) {
+                throw new NotFound(NOT_EXISTS('Account'));
+            }
 
-            let stream = fs.createReadStream(path);
+            let files = await FilesystemService.getByAccount(account._id);
 
-            let stat = fs.statSync(path);
+            return res.status(SUCCESS_CODE).json(files);
+        } catch (err) {
+            next(err);
+        }
+    }
 
-            res.setHeader('Content-type', 'application/pdf');
+    static async renameFile(req, res, next) {
+        const { id } = req.params;
+        let { alias } = req.body;
 
-            res.setHeader('Content-Length', stat.size);
-            res.setHeader('Content-Type', 'application/pdf');
-            res.setHeader('Content-Disposition', `attachment; filename=${fileData.fileName}`);
+        try {
+            const file = await FilesystemService.getById(id);
 
-            stream.pipe(res);
+            if(!file) {
+                throw new NotFound(NOT_EXISTS('File'));
+            }
+
+            alias = alias.trim();
+
+            if(!validfilename(alias)) {
+                throw new ValidationError(INVALID('File Name'));
+            }
+
+            await FilesystemService.update(id, { alias });
+
+            return res.status(SUCCESS_CODE).json({ success: true });
 
         } catch (err) {
             next(err);
         }
+
     }
 }
